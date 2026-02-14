@@ -59,6 +59,7 @@
             // Update UI with user data
             document.getElementById('user-name').innerText = currentUser.fullName || currentUser.username;
             document.getElementById('user-title').innerText = currentUser.title || 'User';
+            document.getElementById('user-status').innerText = currentUser.status || 'Welcome!';
 
             // Initials
             const names = (currentUser.fullName || currentUser.username).split(' ');

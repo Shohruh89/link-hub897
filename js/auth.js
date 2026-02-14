@@ -13,7 +13,8 @@ const DEFAULT_ADMIN = {
     password: 'user1',
     role: 'admin',
     fullName: 'Sh. F. Hojiyev',
-    title: 'Data Analyst & Backend Developer'
+    title: 'Data Analyst & Backend Developer',
+    status: 'Zo\'r kurs ekan & Manga yoqdi'
 };
 
 // Initialize Data if empty

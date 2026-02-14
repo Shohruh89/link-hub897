@@ -14,7 +14,7 @@ function saveUsers(users) {
     localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
 }
 
-function createUser(username, password, fullName, title) {
+function createUser(username, password, fullName, title, status) {
     const users = getAllUsers();
 
     // Check if exists
@@ -27,6 +27,7 @@ function createUser(username, password, fullName, title) {
         password,
         fullName,
         title,
+        status: status || 'Welcome!', // Default status
         role: 'user', // Default role
         createdAt: new Date().toISOString()
     };
@@ -34,6 +35,18 @@ function createUser(username, password, fullName, title) {
     users.push(newUser);
     saveUsers(users);
     return { success: true, user: newUser };
+}
+
+function updateUserStatus(username, newStatus) {
+    let users = getAllUsers();
+    const index = users.findIndex(u => u.username === username);
+
+    if (index !== -1) {
+        users[index].status = newStatus;
+        saveUsers(users);
+        return { success: true };
+    }
+    return { success: false, message: 'Foydalanuvchi topilmadi' };
 }
 
 function deleteUser(username) {
@@ -53,5 +66,6 @@ function deleteUser(username) {
 window.Admin = {
     getAllUsers,
     createUser,
-    deleteUser
+    deleteUser,
+    updateUserStatus
 };
