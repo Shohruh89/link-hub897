@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal HUB - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="hub-grid">
+
+        <!-- HEADER -->
+        <div class="card admin-header">
+            <h1 class="admin-title">Admin Dashboard</h1>
+            <div style="display: flex; gap: 10px;">
+                <span id="admin-info"
+                    style="font-size: 12px; align-self: center; text-align: right; margin-right: 15px; color: #aaa;"></span>
+                <button onclick="Auth.logout()" class="btn btn-danger" style="font-size: 12px;">Chiqish</button>
+            </div>
+        </div>
+
+        <!-- NEW USER BUTTON -->
+        <div class="card info-card"
+            style="grid-column: span 3; text-align: left; border-top: none; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+            <h3 style="color: #fff;">Foydalanuvchilar</h3>
+            <button onclick="openModal()" class="btn btn-primary">+ Yangi Foydalanuvchi</button>
+        </div>
+
+        <!-- USER LIST -->
+        <div class="card user-list-card">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Ism-sharif</th>
+                        <th>Rol</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Dynamic Data -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="card footer-card">
+            &copy; 2026 Admin Panel
+        </div>
+    </div>
+
+    <!-- MODAL (Add User) -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px; color: var(--neon-cyan);">Yangi Foydalanuvchi</h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Login</label>
+                    <input type="text" id="newUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Parol</label>
+                    <input type="text" id="newPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Ism-sharif</label>
+                    <input type="text" id="newName" class="form-control" placeholder="Masalan: A. B. Familiya">
+                </div>
+                <div class="form-group">
+                    <label>Lavozim (Status)</label>
+                    <input type="text" id="newTitle" class="form-control" placeholder="Masalan: Manager">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeModal()" class="btn" style="flex: 1;">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        // Check Auth
+        const session = Auth.checkSession();
+        if (!session || session.role !== 'admin') {
+            window.location.href = 'index.html'; // Redirect if not admin
+        } else {
+            document.getElementById('admin-info').innerText = `${session.fullName} (Admin)`;
+        }
+
+        // Render Table
+        function renderTable() {
+            const users = Admin.getAllUsers();
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.fullName || '-'}</td>
+                    <td><span class="status-badge" style="border-color: ${user.role === 'admin' ? 'var(--neon-magenta)' : 'var(--neon-green)'}; color: ${user.role === 'admin' ? 'var(--neon-magenta)' : 'var(--neon-green)'}">${user.role.toUpperCase()}</span></td>
+                    <td>
+                        ${user.username !== 'user1' ? `<button onclick="deleteUser('${user.username}')" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">O'chirish</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        renderTable();
+
+        // Modal Logic
+        const modal = document.getElementById('addUserModal');
+        function openModal() { modal.classList.add('active'); }
+        function closeModal() { modal.classList.remove('active'); }
+
+        // Form Logic
+        document.getElementById('addUserForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('newUsername').value;
+            const p = document.getElementById('newPassword').value;
+            const n = document.getElementById('newName').value;
+            const t = document.getElementById('newTitle').value;
+
+            const res = Admin.createUser(u, p, n, t);
+
+            if (res.success) {
+                closeModal();
+                renderTable();
+                e.target.reset(); // Clear form
+            } else {
+                alert(res.message);
+            }
+        });
+
+        // Delete Logic
+        window.deleteUser = function (username) {
+            if (confirm(username + " foydalanuvchisini o'chirmoqchimisiz?")) {
+                const res = Admin.deleteUser(username);
+                if (res.success) {
+                    renderTable();
+                } else {
+                    alert(res.message);
+                }
+            }
+        };
+
+    </script>
+</body>
+
+</html>

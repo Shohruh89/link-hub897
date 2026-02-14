@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal HUB - View</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="hub-grid">
+
+        <!-- Block 1: Profile (Large) -->
+        <div class="card profile-card">
+            <div class="profile-img">
+                <span id="user-initials">--</span>
+            </div>
+            <div class="profile-info">
+                <h1 id="user-name">Loading...</h1>
+                <div class="status" id="user-status">Zo'r kurs ekan & Manga yoqdi</div>
+                <div style="font-size: 11px; margin-top: 10px; color: #aaa;" id="user-title">...</div>
+            </div>
+        </div>
+
+        <!-- Block 2: Time/Info -->
+        <div class="card info-card">
+            <div class="time-display" id="clock">00:00</div>
+            <div class="date-display" id="date">LOADING SYSTEM...</div>
+        </div>
+
+        <!-- Block 3: Links (Main Interaction Area) -->
+        <div class="card links-card">
+            <div class="links-grid">
+                <a href="#" class="link-btn">Telegram</a>
+                <a href="#" class="link-btn">LinkedIn</a>
+                <a href="#" class="link-btn">GitHub</a>
+                <a href="#" class="link-btn">Portfolio</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card footer-card">
+            <div style="margin-bottom: 10px;">
+                <button onclick="logout()" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Chiqish
+                    (Logout)</button>
+            </div>
+            &copy; 2026 Sh. F. Hojiyev
+        </div>
+
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Check Auth
+        const currentUser = Auth.checkSession();
+        if (currentUser) {
+            // Update UI with user data
+            document.getElementById('user-name').innerText = currentUser.fullName || currentUser.username;
+            document.getElementById('user-title').innerText = currentUser.title || 'User';
+
+            // Initials
+            const names = (currentUser.fullName || currentUser.username).split(' ');
+            let initials = names[0][0];
+            if (names.length > 1) initials += names[1][0];
+            document.getElementById('user-initials').innerText = initials.toUpperCase();
+        }
+
+        // Logout Wrapper
+        function logout() {
+            Auth.logout();
+        }
+
+        // Update Clock
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Subtle Parallax on Mouse Move (Desktop only)
+        if (window.matchMedia("(min-width: 900px)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                const x = (window.innerWidth - e.pageX * 2) / 100;
+                const y = (window.innerHeight - e.pageY * 2) / 100;
+
+                const grid = document.querySelector('.hub-grid');
+                grid.style.transform = `perspective(1000px) rotateX(${y * 0.2}deg) rotateY(${x * 0.2}deg)`;
+            });
+        }
+    </script>
+</body>
+
+</html>
